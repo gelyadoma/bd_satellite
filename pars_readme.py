@@ -67,15 +67,15 @@ def tif_pars(tif_path):
     return dict_content
 
 
-def shp_pars(shp_path):
-    layerList = []
-    for p in shp_path:
-        gshp = ogr.Open(p)
-        layer = gshp.GetName()
-        print(layer)
-        layerList.append(layer)
-    dict_content['mask'] = layerList
-    return dict_content
+# def shp_pars(shp_path):
+#     layerList = []
+#     for p in shp_path:
+#         gshp = ogr.Open(p)
+#         layer = gshp.GetName()
+#         print(layer)
+#         layerList.append(layer)
+#     dict_content['mask'] = layerList
+#     return dict_content
 
 
 wv_pars(path_folder)
