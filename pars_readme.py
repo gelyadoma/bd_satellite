@@ -1,6 +1,6 @@
 from osgeo import gdal
 import os
-from osgeo import ogr
+# from osgeo import ogr
 import re
 
 
@@ -19,6 +19,8 @@ ATTRIBUTE_KEY = {
 dict_content = {}
 imd_path = []  # список файлов метаданных
 tif_path = []  # список тифов
+
+# def unzip(path_folder):
 
 
 def wv_pars(path_folder):
@@ -81,4 +83,5 @@ def tif_pars(tif_path):
 wv_pars(path_folder)
 imd_pars(imd_path)
 print(tif_pars(tif_path))
+
 # print(shp_pars(shp_path))
