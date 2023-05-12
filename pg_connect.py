@@ -14,14 +14,14 @@ sql_create_table = "CREATE TABLE IMAGE (ID SERIAL PRIMARY KEY,\
           DATE TIMESTAMPTZ,\
           CLOUD_COVER FLOAT);"  # запрос на создание бд через криейт
 
-sql_insert_data = "INSERT INTO image (satellite_name,\
+sql_insert_data = "INSERT INTO image (name_product, satellite_name,\
     pixel_resolution,\
     band_info,\
     processing_level,\
     band_numbers,\
     format,\
     date, cloud_cover)\
-        VALUES (%(satellite_name)s, %(pixel_resolution)s,\
+        VALUES (%(name_product)s, %(satellite_name)s, %(pixel_resolution)s,\
         %(band_info)s,\
         %(processing_level)s,\
         %(format)s,%(band_numbers)s,\
@@ -42,7 +42,7 @@ try:
     cursor.execute(sql_insert_data, dict_content)
     connection.commit()  # обязательно при выполнении запросов в бд
     # record = cursor.fetchone()
-    print('Таблица создана')
+    print('Запись добавлена')
 except (Exception, Error) as error:
     print('Какая то фигня с подключением блин,', error)
     # connectioin.rollback() - если после запросов что-то не то - можно откатиться до предыдущего состояния базы
