@@ -1,10 +1,12 @@
 from osgeo import gdal
 import os
 # from osgeo import ogr
+# from pathlib import Path
 import re
+# import pg_connect
 
 
-path_folder = os.walk('./pars/014194668010_01')
+path_folder = os.walk('./pars/')
 
 ATTRIBUTE_KEY = {
     'satId': 'satellite_name',
@@ -19,20 +21,32 @@ ATTRIBUTE_KEY = {
 dict_content = {}
 imd_path = []  # список файлов метаданных
 tif_path = []  # список тифов
+path = []
 
-# def unzip(path_folder):
 
+def path_walk(path_folder):
+    for path_folder, dirs, files in path_folder:
+        # отбирает только те папки которые состоят из чисел
+        # не обязательно если в директории кроме папок продуктов ничего нет
+        pattern = re.compile(r'^[0-9]+.\d{2}$') 
+        for subdir in dirs:
+            if pattern.match(subdir):
+                path = os.path.join(path_folder, subdir)
+                print(path)
+    return path
+ 
 
-def wv_pars(path_folder):
-    for dirpath, dirname, filenames in path_folder:
-        for filename in filenames:   # генерит пути с названием файлов
-            files = os.path.join(dirpath, filename)
-            match_imd = re.search(r'.IMD', files)
-            match_tif = re.search(r'.TIF$', files)
-            if os.path.isfile(files) and match_imd:
-                imd_path.append(files)
-            elif os.path.isfile(files) and match_tif:
-                tif_path.append(files)
+def wv_pars(path):
+    for p in path:
+        for dirpath, dirname, filenames in p:
+            for filename in filenames:   # генерит пути с названием файлов
+                files = os.path.join(dirpath, filename)
+                match_imd = re.search(r'.IMD', files)
+                match_tif = re.search(r'.TIF$', files)
+                if os.path.isfile(files) and match_imd:
+                    imd_path.append(files)
+                elif os.path.isfile(files) and match_tif:
+                    tif_path.append(files)
     return tif_path, tif_path
     # print(tif_path)
     # print(imd_path)
@@ -69,19 +83,8 @@ def tif_pars(tif_path):
     return dict_content
 
 
-# def shp_pars(shp_path):
-#     layerList = []
-#     for p in shp_path:
-#         gshp = ogr.Open(p)
-#         layer = gshp.GetName()
-#         print(layer)
-#         layerList.append(layer)
-#     dict_content['mask'] = layerList
-#     return dict_content
-
-
-wv_pars(path_folder)
+path_walk(path_folder)
+wv_pars(path)
 imd_pars(imd_path)
-print(tif_pars(tif_path))
+tif_pars(tif_path)
 
-# print(shp_pars(shp_path))

@@ -3,8 +3,8 @@ from psycopg2 import Error
 from pars_readme import dict_content
 # from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
 
-sql_create_table = "CREATE TABLE IMAGE (ID INT PRIMARY KEY NOT NULL,\
-          NAME_PRODUCT TEXT NOT NULL,\
+sql_create_table = "CREATE TABLE IMAGE (ID SERIAL PRIMARY KEY,\
+          NAME_PRODUCT TEXT,\
           SATELLITE_NAME TEXT,\
           PIXEL_RESOLUTION FLOAT,\
           BAND_INFO TEXT,\
@@ -12,16 +12,16 @@ sql_create_table = "CREATE TABLE IMAGE (ID INT PRIMARY KEY NOT NULL,\
           PROCESSING_LEVEL TEXT,\
           FORMAT SMALLINT,\
           DATE TIMESTAMPTZ,\
-          CLOUD_COVER SMALLINT);"  # запрос на создание бд через криейт
+          CLOUD_COVER FLOAT);"  # запрос на создание бд через криейт
 
-sql_insert_data = "INSERT INTO image (id, name_product, satellite_name,\
+sql_insert_data = "INSERT INTO image (satellite_name,\
     pixel_resolution,\
     band_info,\
     processing_level,\
     band_numbers,\
     format,\
     date, cloud_cover)\
-        VALUES (6, 'name' , %(satellite_name)s, %(pixel_resolution)s,\
+        VALUES (%(satellite_name)s, %(pixel_resolution)s,\
         %(band_info)s,\
         %(processing_level)s,\
         %(format)s,%(band_numbers)s,\
