@@ -3,18 +3,9 @@ import os
 # from osgeo import ogr
 from pathlib import Path
 import re
+from pg_connect import pg_connect_insert
 
-
-rootdir = './bd_satellite/products/'
-path_list = []
-
-for path in Path(rootdir).iterdir():
-    if path.is_dir():
-        path_list.append(path)
-        
-print(path_list)
-
-path_folder = os.walk('./bd_satellite/')
+# path_folder = os.walk('./bd_satellite/products/')
 
 ATTRIBUTE_KEY = {
     'productOrderId': 'name_product',
@@ -31,11 +22,27 @@ dict_content = {}
 imd_path = []  # список файлов метаданных
 tif_path = []  # список тифов
 
-# def unzip(path_folder):
+rootdir = r'D:\Dev\bd_satellite\products'
+path_list = []
+# imd_path = []  # список файлов метаданных
+# tif_path = []
 
 
-def wv_pars(path_folder):
-    for dirpath, dirname, filenames in path_folder:
+def path_walk(rootdir):
+    # dict_content = {}
+    for path in Path(rootdir).iterdir():
+        print(path)
+        path_list.append(os.path.join(path))
+        for p in path_list:
+            wv_pars(p)
+            imd_pars(imd_path)
+            tif_pars(tif_path)
+            pg_connect_insert(dict_content)
+    return
+
+
+def wv_pars(p):
+    for dirpath, dirname, filenames in os.walk(p):
         for filename in filenames:   # генерит пути с названием файлов
             files = os.path.join(dirpath, filename)
             match_imd = re.search(r'.IMD', files)
@@ -44,8 +51,8 @@ def wv_pars(path_folder):
                 imd_path.append(files)
             elif os.path.isfile(files) and match_tif:
                 tif_path.append(files)
-    return tif_path, tif_path
-        # return dict_content
+    return tif_path, imd_path
+    # return dict_content
     # print(tif_path)
     # print(imd_path)
     # print(shp_path)
@@ -81,6 +88,15 @@ def tif_pars(tif_path):
     return dict_content
 
 
+# rootdir = '../bd_satellite/products/'
+# path_list = []
+
+# for path in Path(rootdir).iterdir():
+#     if path.is_dir():
+#         path_list.append(os.path.join(path))
+#         for p in path_list:
+#             wv_pars(p)
+# print(path_list)
 # # def shp_pars(shp_path):
 # #     layerList = []
 # #     for p in shp_path:
@@ -92,8 +108,9 @@ def tif_pars(tif_path):
 # #     return dict_content
 
 # def insert_pgdb():
-wv_pars(path_folder)
-imd_pars(imd_path)
-print(tif_pars(tif_path))
+path_walk(rootdir)
+# wv_pars(path_list)
+# imd_pars(imd_path)
+# print(tif_pars(tif_path))
 
 # print(shp_pars(shp_path))
