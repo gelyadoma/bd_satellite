@@ -1,9 +1,8 @@
 from osgeo import gdal
 import os
-from osgeo import ogr
 from pathlib import Path
 import re
-from pg_connect import pg_connect_insert
+# from pg_connect import pg_connect_insert
 
 
 ATTRIBUTE_KEY = {
@@ -26,27 +25,29 @@ def path_walk():
     for path in Path(rootdir).iterdir():
         path_list.append(os.path.join(path))
     for p in path_list:
-        for path in os.listdir(p):  # для каждой подпапки в папке продукта
-            pattern = re.compile(r'^[0-9]+.\d{2}.[A-Z]+\d{3}.\D{3}')
+        print(p)
+        for path in os.listdir(p):  # для каждого элемента в папке продукта
+            pattern = re.compile(r'^[0-9]+.\d{2}.[A-Z]+\d{3}.\D{3}$')
             if pattern.match(path):  # сравнить с шаблоном названия папки с изображением
-                path_img = os.path.join(p, path)  # сгенерить путь папка продукта + папка с изображением
-                # pg_connect_insert(wv_pars(path_img))
-                print(wv_pars(path_img))
+                path_img = os.path.join(p, path)
+                # print(path_img)  # сгенерить путь папка продукта + папка с изображением
+                print(wv_pars(path_img, p))
     return
 
 
-def wv_pars(path_img):
+def wv_pars(path_img, p):
     files = os.listdir(path_img)
     for f in files:
         file = os.path.join(f)
         match_imd = re.search(r'^.+IMD', file)
-        match_tif = re.search(r'^.+TIL$', file)
+        match_til = re.search(r'^.+TIL$', file)
         if match_imd:
             file_path = os.path.join(path_img, file)
             imd_pars(file_path)
-        elif match_tif:
-            file_path = os.path.join(path_img, file)
-            tif_pars(file_path)
+        elif match_til:
+            # file_path = os.path.join(path_img, file)
+            # print(file_path)
+            til_pars(p, path_img, file)
     return dict_content
 
 
@@ -68,13 +69,23 @@ def imd_pars(file_path):
     return dict_content
 
 
-def tif_pars(tif_path):
-    gtif = gdal.Open(tif_path)
+def til_pars(p, path_img, file):
+    file_path = os.path.join(path_img, file)
+    gtil = gdal.Open(file_path)
+    # ql_name = dict_content['name_product']
+    # destName = f'{p}/{ql_name}'
     # print(gtif)
-    band_numbers = gtif.RasterCount  # band numbers
+    ql_path = f'{p}\\{file}_quikLook.tif'
+    gtil = gdal.Warp(ql_path, gtil, creationOptions=['widthPct = 10, heightPct = 10'])
+    if not gtil:
+        return 'fail'
+    print('QuickLook created')
+    dict_content['quicklook'] = ql_path
+    band_numbers = gtil.RasterCount  # band numbers
     dict_content['band_numbers'] = band_numbers
     # print(dict_content)
-    return dict_content
+    gtil = None
+    return gtil, dict_content
 
 
 path_walk()
