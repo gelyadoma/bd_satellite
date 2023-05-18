@@ -2,7 +2,7 @@ from osgeo import gdal
 import os
 from pathlib import Path
 import re
-# from pg_connect import pg_connect_insert
+from pg_connect import pg_connect_insert
 
 
 ATTRIBUTE_KEY = {
@@ -31,7 +31,7 @@ def path_walk():
             if pattern.match(path):  # сравнить с шаблоном названия папки с изображением
                 path_img = os.path.join(p, path)
                 # print(path_img)  # сгенерить путь папка продукта + папка с изображением
-                print(wv_pars(path_img, p))
+                pg_connect_insert(wv_pars(path_img, p))
     return
 
 
@@ -48,6 +48,7 @@ def wv_pars(path_img, p):
             # file_path = os.path.join(path_img, file)
             # print(file_path)
             til_pars(p, path_img, file)
+    print('Успешное прочтение.')
     return dict_content
 
 

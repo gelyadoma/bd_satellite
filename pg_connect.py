@@ -20,12 +20,14 @@ sql_insert_data = "INSERT INTO image (name_product, satellite_name,\
     processing_level,\
     band_numbers,\
     format,\
-    date, cloud_cover)\
+    date, cloud_cover,\
+    quicklook)\
         VALUES (%(name_product)s, %(satellite_name)s, %(pixel_resolution)s,\
         %(band_info)s,\
         %(processing_level)s,\
         %(band_numbers)s,%(format)s,\
-        %(date)s, %(cloud_cover)s);"
+        %(date)s, %(cloud_cover)s,\
+        %(quicklook)s);"
 
 
 def pg_connect_insert(dict_content):
