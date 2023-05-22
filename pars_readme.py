@@ -21,7 +21,7 @@ path_list = []
 
 
 def path_walk():
-    rootdir = r'D:\Dev\bd_satellite\products'
+    rootdir = r'D:\Dev\bd_satellite\products1'
     for path in Path(rootdir).iterdir():
         path_list.append(os.path.join(path))
     for p in path_list:
@@ -31,14 +31,16 @@ def path_walk():
             if pattern.match(path):  # сравнить с шаблоном названия папки с изображением
                 path_img = os.path.join(p, path)
                 # print(path_img)  # сгенерить путь папка продукта + папка с изображением
-                pg_connect_insert(wv_pars(path_img, p))
+                print(wv_pars(path_img, p))
     return
 
 
 def wv_pars(path_img, p):
     files = os.listdir(path_img)
     for f in files:
+        # print(f)
         file = os.path.join(f)
+        # print(file)
         match_imd = re.search(r'^.+IMD', file)
         match_til = re.search(r'^.+TIL$', file)
         if match_imd:
@@ -73,10 +75,7 @@ def imd_pars(file_path):
 def til_pars(p, path_img, file):
     file_path = os.path.join(path_img, file)
     gtil = gdal.Open(file_path)
-    # ql_name = dict_content['name_product']
-    # destName = f'{p}/{ql_name}'
-    # print(gtif)
-    ql_path = f'{p}\\{file}_quikLook.tif'
+    ql_path = f'{p}\\{file[:-4]}_quickLook.tif'
     gtil = gdal.Warp(ql_path, gtil, creationOptions=['widthPct = 10, heightPct = 10'])
     if not gtil:
         return 'fail'
@@ -84,8 +83,23 @@ def til_pars(p, path_img, file):
     dict_content['quicklook'] = ql_path
     band_numbers = gtil.RasterCount  # band numbers
     dict_content['band_numbers'] = band_numbers
-    # print(dict_content)
     gtil = None
+    for path_shp in os.listdir(p):
+        pattern = re.compile('GIS_FILES')
+        # найти папку с шейпами
+        if pattern.match(path_shp):
+            print('Match')
+            shp_dir = os.path.join(p, path_shp)
+            # print(shp_dir) # D:\Dev\bd_satellite\products1\052746661010_01\GIS_FILES
+            for shp_file in os.listdir(shp_dir):
+                # найти шейп
+                # print(shp_file) # D:\Dev\bd_satellite\products1\052746661010_01\GIS_FILES\052746661010_01.dbf
+                pattern = f'{file[:-4]}_PIXEL_SHAPE.shp'
+                shp_pattern = re.compile(pattern)
+                if shp_pattern.match(str(shp_file)):
+                    print(f'Match:{shp_file}')
+                    shp_path = os.path.join(shp_dir, shp_file)
+                    dict_content['shp_path'] = shp_path  # записать путь к шейпу в словарь
     return gtil, dict_content
 
 
