@@ -12,7 +12,8 @@ sql_create_table = "CREATE TABLE IMAGE (ID SERIAL PRIMARY KEY,\
     PROCESSING_LEVEL TEXT,\
     FORMAT SMALLINT,\
     DATE TIMESTAMPTZ,\
-    CLOUD_COVER FLOAT);"  # запрос на создание бд через криейт
+    CLOUD_COVER FLOAT,\
+    GEOM GEOMETRY(POLYGON, 4326));"  # запрос на создание бд через криейт
 
 sql_insert_data = "INSERT INTO image (name_product, satellite_name,\
     pixel_resolution,\
@@ -21,13 +22,13 @@ sql_insert_data = "INSERT INTO image (name_product, satellite_name,\
     band_numbers,\
     format,\
     date, cloud_cover,\
-    quicklook)\
+    quicklook, geom)\
         VALUES (%(name_product)s, %(satellite_name)s, %(pixel_resolution)s,\
         %(band_info)s,\
         %(processing_level)s,\
         %(band_numbers)s,%(format)s,\
         %(date)s, %(cloud_cover)s,\
-        %(quicklook)s);"
+        %(quicklook)s, %(shp_prod)s);"
 
 
 def pg_connect_insert(dict_content):

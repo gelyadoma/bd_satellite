@@ -1,4 +1,4 @@
-from osgeo import gdal
+from osgeo import gdal, ogr
 import os
 from pathlib import Path
 import re
@@ -21,17 +21,17 @@ path_list = []
 
 
 def path_walk():
-    rootdir = r'D:\Dev\bd_satellite\products1'
+    rootdir = r'D:\Dev\bd_satellite\products'
     for path in Path(rootdir).iterdir():
         path_list.append(os.path.join(path))
     for p in path_list:
-        print(p)
+        print(f'Open folder: {p}')
         for path in os.listdir(p):  # для каждого элемента в папке продукта
             pattern = re.compile(r'^[0-9]+.\d{2}.[A-Z]+\d{3}.\D{3}$')
             if pattern.match(path):  # сравнить с шаблоном названия папки с изображением
                 path_img = os.path.join(p, path)
                 # print(path_img)  # сгенерить путь папка продукта + папка с изображением
-                print(wv_pars(path_img, p))
+                pg_connect_insert(wv_pars(path_img, p))
     return
 
 
@@ -50,7 +50,7 @@ def wv_pars(path_img, p):
             # file_path = os.path.join(path_img, file)
             # print(file_path)
             til_pars(p, path_img, file)
-    print('Успешное прочтение.')
+    print('Success')
     return dict_content
 
 
@@ -88,7 +88,7 @@ def til_pars(p, path_img, file):
         pattern = re.compile('GIS_FILES')
         # найти папку с шейпами
         if pattern.match(path_shp):
-            print('Match')
+            print('Match folder with shpfile')
             shp_dir = os.path.join(p, path_shp)
             # print(shp_dir) # D:\Dev\bd_satellite\products1\052746661010_01\GIS_FILES
             for shp_file in os.listdir(shp_dir):
@@ -99,8 +99,22 @@ def til_pars(p, path_img, file):
                 if shp_pattern.match(str(shp_file)):
                     print(f'Match:{shp_file}')
                     shp_path = os.path.join(shp_dir, shp_file)
-                    dict_content['shp_path'] = shp_path  # записать путь к шейпу в словарь
+                    shpToWkt(shp_path)
+
     return gtil, dict_content
+
+
+def shpToWkt(shp_path):
+    driver = ogr.GetDriverByName("ESRI Shapefile")
+    dataSource = driver.Open(shp_path, 0)
+    layer = dataSource.GetLayer()
+    for feature in layer:
+        geom = feature.GetGeometryRef()
+        geomwkt = geom.ExportToWkt()
+        # print(geomwkt)
+        dict_content['shp_prod'] = geomwkt
+        print('WKT created')
+    return dict_content
 
 
 path_walk()
